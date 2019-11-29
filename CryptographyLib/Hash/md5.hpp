@@ -34,35 +34,6 @@ namespace CryptoLib::Hash
 		return d_first;
 	}
 
-	template<typename T>
-	constexpr T powAbsSinValue(int index)
-	{
-		return {};
-	};
-
-	template<>
-	constexpr uint16_t powAbsSinValue(int index)
-	{
-		return std::floor(std::pow(2, 32) * std::abs(std::sin(index)));
-	};
-
-	constexpr unsigned int tablesize{ 64 };
-
-	template<typename T, int... N>
-	struct PrecomputedTable {};
-
-	template<typename T, int... N>
-	struct PrecomputedTable<T, 1, N...>
-	{
-		static constexpr std::array<T, sizeof...(N) + 1> table = { {powAbsSinValue<T>(1), N...} };
-	};
-
-	template<typename T, int L, int... N>
-	struct PrecomputedTable<T, L, N...> :PrecomputedTable<T, L - 1, powAbsSinValue<T>(L), N...> {};
-
-	template<typename T, int ...N>
-	constexpr std::array<T, sizeof...(N) + 1> PrecomputedTable<T, 1, N...>::table;
-
 	template<typename _StringIter>
 	std::string MD5CreateHash(_StringIter first, _StringIter last)
 	{
@@ -93,9 +64,15 @@ namespace CryptoLib::Hash
 		{
 			alignedWord.resize(alignedWord.size() + rest, 0);
 		}
-		const std::array<uint32_t, tablesize> K = PrecomputedTable<uint16_t, 64>::values;
+		std::array<uint32_t, 64> k;
+		for (size_t i{ 0 }; i < 64; ++i)
+		{
+			k[i] = std::floor(std::pow(2, 32) * std::abs(std::sin(i + 1)));
+		}
 
 		auto operation = [](int32_t a, int32_t b, int32_t c, int32_t d, int32_t k, int32_t s, int32_t i, std::function<int32_t(int32_t, int32_t, int32_t)>) -> int32_t { return 0; };
+
+		return hashCode;
 	}
 }
 
