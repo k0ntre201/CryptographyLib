@@ -18,3 +18,11 @@ TEST(Whirpool_Hash_test, Constant_generator)
 	auto SBoxB3 = InitializeSBox::SBoxTable<>::table[0x0b*16 + 0x03];
 	EXPECT_EQ(SBoxB3, 0x8c);
 }
+
+TEST(Whirpool_Hash_test, Is_odd)
+{
+	using namespace CryptoLib::Hash;
+	
+	EXPECT_EQ(InitializeSBox::is_odd<9>::value, false);
+	EXPECT_EQ(InitializeSBox::is_odd<4>::value, true);
+}

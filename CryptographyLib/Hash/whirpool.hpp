@@ -34,6 +34,40 @@ namespace CryptoLib::Hash
 		{
 			static constexpr std::array<uint32_t, tableSize> table = { SBoxItem... };
 		};
+
+		template <int N>
+		struct is_odd
+		{
+			static constexpr bool value = N % 2;
+		};
+
+
+
+		struct divide_by_reduce_polynomial_helper
+		{
+			static constexpr std::array<int, 4> reducePolynomials = { 0x8e8,0x474,0x23a,0x11d};
+			static constexpr std::array<int, 4> binaryFlags = { 0x800,0x400,0x200,0x100 };
+		};
+
+
+		template<int V, int N = 3>
+		struct divide_by_reduce_polynomial : 
+			divide_by_reduce_polynomial <(V & divide_by_reduce_polynomial_helper::binaryFlags[N]) ?
+			V ^ divide_by_reduce_polynomial_helper::reducePolynomials[N] : V,
+			N - 1>
+		{};
+
+		template <int V>
+		struct divide_by_reduce_polynomial<V,0>
+		{
+			static constexpr int value = (V & divide_by_reduce_polynomial_helper::binaryFlags[0]) ? V ^ divide_by_reduce_polynomial_helper::reducePolynomials[0] : V;
+		};
+		
+		template <int V, int Mul>
+		struct generate_multiply_value_to_extended_sBox
+		{
+			static constexpr int value = Mul == 1 ? V : is_odd<Mul>::value == true ? divide_by_reduce_polynomial<V * (Mul - 1)>::value ^ V : divide_by_reduce_polynomial<V*Mul>::value;
+		};
 	};
 
 	class Whirpool
