@@ -14,7 +14,8 @@ int main()
 		std::cout << std::hex << c1 << "\n";
 		mask |= (mask >> 8);
 	}*/
-	std::array<uint64_t, 8> a = { 0x1823c6e887b8014f,0x36a6d2f5796f9152,0x60bc9b8ea30c7b35,0x1de0d7c22e4bfe57 ,0x157737e59ff04ada ,0x58c9290ab1a06b85 ,0xbd5d10f4cb3e0567 ,0xe427418ba77d95d8 };
 	CryptoLib::Hash::Whirpool w;
-	std::cout << std::hex << w.whirpoolOperation(a, 0) << "\n";
+	std::string a = w.generateHash("");
+
+	std::cout << a << "\n";
 }

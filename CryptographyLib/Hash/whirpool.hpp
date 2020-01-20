@@ -139,9 +139,11 @@ namespace CryptoLib::Hash
 	class Whirpool
 	{
 	public:
+		std::string generateHash(std::string message);
+	private:
+		uint64_t whirpoolOperation(const std::array<uint64_t, 8>& block, int shift);
 
-	public:
-		uint64_t whirpoolOperation(std::array<uint64_t, 8> block, int shift);
+		std::array<uint64_t, 8> processOneBlock(const std::array<uint64_t, 8>& block, const std::array<uint64_t, 8>& hash);
 
 	private:
 

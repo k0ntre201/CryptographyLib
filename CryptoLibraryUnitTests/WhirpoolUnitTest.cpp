@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "../CryptographyLib/Hash/whirpool.hpp"
+#include "../CryptographyLib/Hash/whirpool.cpp"
 
 TEST(Whirpool_Hash_test, Constant_generator) 
 {
@@ -75,4 +76,31 @@ TEST(Whirpool_Hash_test, Check_is_key_item_generated_correctly)
 	EXPECT_EQ(k1, 0x36A6D2F5796F9152);
 	auto k2 = InitializeSBox::generate_initial_keys<>::K0[2];
 	EXPECT_EQ(k2, 0x60bc9b8ea30c7b35);
+}
+
+TEST(Whirpool_Hash_test, really_short_key)
+{
+	using namespace CryptoLib::Hash;
+	Whirpool w;
+	EXPECT_EQ(w.generateHash(std::string("std::array")),
+		std::string("587ccdcadd084415f7a903b467a9b0d18543a48267c421cee005d626d6ad8677ab8a85712bc453c559a48639e1b585ff1df5c2478969aa2862415a1e78bcca5f"));
+}
+
+
+TEST(Whirpool_Hash_test, short_key)
+{
+	using namespace CryptoLib::Hash;
+	CryptoLib::Hash::Whirpool w;
+	std::string is = w.generateHash("The quick brown fox jumps over the lazy dog");
+	std::string expect = "b97de512e91e3828b40d2b0fdce9ceb3c4a71f9bea8d88e75c4fa854df36725fd2b52eb6544edcacd6f8beddfea403cb55ae31f03ad62a5ef54e42ee82c3fb35";
+	EXPECT_EQ(is,expect);
+}
+
+TEST(Whirpool_Hash_test, long_key)
+{
+	using namespace CryptoLib::Hash;
+	Whirpool w;
+
+	EXPECT_EQ(w.generateHash("std::array is a container that encapsulates fixed size arrays. This container is an aggregate type with the same semantics as a struct holding a C-style array T[N] as its only non-static data member. Unlike a C-style array, it doesn't decay to T* automatically. As an aggregate type, it can be initialized with aggregate-initialization given at most N initializers that are convertible to T: std::array<int, 3> a = {1,2,3};. The struct combines the performance and accessibility of a C-style array with the benefits of a standard container, such as knowing its own size, supporting assignment, random access iterators, etc. std::array satisfies the requirements of Container and ReversibleContainer except that default-constructed array is not empty and that the complexity of swapping is linear, satisfies the requirements of ContiguousContainer, (since C++17) and partially satisfies the requirements of SequenceContainer. There is a special case for a zero-length array (N == 0). In that case, array.begin() == array.end(), which is some unique value. The effect of calling front() or back() on a zero-sized array is undefined. An array can also be used as a tuple of N elements of the same type."),
+		"18a887de24e27011aa4fe09e7d29291c7c9eba73f5bd94e13d8b1b01bc40cf4ecc14dae3c5cc17ee7203e0db23fb3dded19c31277b66eaab2e84e547057bf5f1");
 }
