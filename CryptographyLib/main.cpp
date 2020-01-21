@@ -1,5 +1,44 @@
 #include <iostream>
 #include "Hash/whirpool.hpp"
+#include "Hash/md5.hpp"
+
+
+//template <typename T>
+//class Amount
+//{
+//public:
+//	double getValue() const
+//	{
+//		return static_cast<T const&>(*this).getValue();
+//	}
+//};
+//
+//class Constant42 : public Amount<Constant42>
+//{
+//public:
+//	double getValue() const { return 42; }
+//};
+//
+//class Variable : public Amount<Variable>
+//{
+//public:
+//	explicit Variable(int value) : value_(value) {}
+//	double getValue() const { return value_; }
+//private:
+//	int value_;
+//};
+//
+//template<typename T>
+//void print(Amount<T> const& amount)
+//{
+//	std::cout << amount.getValue() << '\n';
+//}
+
+template <typename HashTest>
+std::string generateHash(std::string message, CryptoLib::Hash::GenericHash<HashTest> hashTest)
+{
+	return hashTest.generateHash(message);
+}
 
 int main()
 {
@@ -15,7 +54,8 @@ int main()
 		mask |= (mask >> 8);
 	}*/
 	CryptoLib::Hash::Whirpool w;
-	std::string a = w.generateHash("");
+	std::cout << generateHash("", w) << "\n";
 
-	std::cout << a << "\n";
+	CryptoLib::Hash::MD5 md5;
+	std::cout << generateHash("", md5) << "\n";
 }

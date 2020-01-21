@@ -1,48 +1,50 @@
 #ifndef CRYPTOLIB_HASH_MD5_HPP
 #define CRYPTOLIB_HASH_MD5_HPP
 
+#include "../Utils/utils.hpp"
+#include "GenericHash.hpp"
+
 #include <array>
 #include <functional>
-#include <iomanip>
-#include <sstream>
-#include <string>
 #include <vector>
 
 namespace CryptoLib::Hash
 {
-	struct MD5InitContext
+	namespace
 	{
-		static constexpr std::array<unsigned int, 4> initialTable = { 0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476 };
-	};
-
-	constexpr std::array<unsigned int, 4> MD5InitContext::initialTable;
-
-	template <typename _8BitIter, typename _32BitIter>
-	_32BitIter convert8bitContainerTo32Bit(_8BitIter first, _8BitIter last, _32BitIter d_first)
-	{
-		while (first != last)
+		struct MD5InitContext
 		{
-			char number[4] = { 0,0,0,0 };
-			size_t length = (std::distance(first, last) < 4) ? std::distance(first, last) : 4;
-			for (size_t i{ 0 }; i < length; ++i)
+			static constexpr std::array<unsigned int, 4> initialTable = { 0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476 };
+		};
+
+		constexpr std::array<unsigned int, 4> MD5InitContext::initialTable;
+
+		template <typename _8BitIter, typename _32BitIter>
+		_32BitIter convert8bitContainerTo32Bit(_8BitIter first, _8BitIter last, _32BitIter d_first)
+		{
+			while (first != last)
 			{
-				number[i] = *first++;
+				char number[4] = { 0,0,0,0 };
+				size_t length = (std::distance(first, last) < 4) ? std::distance(first, last) : 4;
+				for (size_t i{ 0 }; i < length; ++i)
+				{
+					number[i] = *first++;
+				}
+				*d_first++ = *(uint32_t*)(number);
 			}
-			*d_first++ = *(uint32_t*)(number);
+			return d_first;
 		}
-		return d_first;
 	}
 
 	template<typename _StringIter>
 	std::string MD5CreateHash(_StringIter first, _StringIter last)
 	{
-		std::string hashCode;
 		// Define lanbdas
 		auto F = [](uint32_t x, uint32_t y, uint32_t z) -> uint32_t { return ((x & y) | ((~x) & z)); };
 		auto G = [](uint32_t x, uint32_t y, uint32_t z) -> uint32_t { return ((x & z) | ((~z) & y)); };
 		auto H = [](uint32_t x, uint32_t y, uint32_t z) -> uint32_t { return (x ^ y ^ z); };
 		auto I = [](uint32_t x, uint32_t y, uint32_t z) -> uint32_t { return (y ^ (x | (~z))); };
-		
+
 
 		// Calculate word length
 		uint64_t wordLength = std::distance(first, last);
@@ -65,10 +67,10 @@ namespace CryptoLib::Hash
 		// Create aligned word container
 		std::vector<uint32_t> alignedWord(alignedWordSize);
 		convert8bitContainerTo32Bit(word.begin(), word.end(), alignedWord.begin());
-		
+
 		alignedWord.insert(alignedWord.end(), padding.begin(), padding.begin() + rest);
 		// Append length of word on two last bytes
-		*(uint64_t*)&alignedWord[alignedWord.size() - 2] = (wordLength*8);
+		*(uint64_t*)&alignedWord[alignedWord.size() - 2] = (wordLength * 8);
 
 		// Calculate magic numbers
 		std::array<uint32_t, 64> t;
@@ -89,7 +91,7 @@ namespace CryptoLib::Hash
 
 		auto [a, b, c, d] = MD5InitContext::initialTable;
 
-		for (size_t i{ 0 }; i < alignedWord.size()/offset; i ++)
+		for (size_t i{ 0 }; i < alignedWord.size() / offset; i++)
 		{
 			size_t index{ 0 };
 			auto [aa, bb, cc, dd] = std::array<unsigned int, 4>{ a, b, c, d };
@@ -176,7 +178,7 @@ namespace CryptoLib::Hash
 			d = operation(d, a, b, c, alignedWord[i * offset + 11], 10, t[index++], I);
 			c = operation(c, d, a, b, alignedWord[i * offset + 2], 15, t[index++], I);
 			b = operation(b, c, d, a, alignedWord[i * offset + 9], 21, t[index++], I);
-		
+
 			a += aa;
 			b += bb;
 			c += cc;
@@ -184,17 +186,15 @@ namespace CryptoLib::Hash
 		}
 
 		std::array<unsigned int, 4> hash = { a,b,c,d };
-		for (unsigned int h : hash)
-		{
-			std::ostringstream ss;
-			ss << std::setfill('0') << std::setw(8) << std::hex << _byteswap_ulong(h);
-			std::string hexValue = ss.str();
-			
-			hashCode.insert(hashCode.end(), hexValue.begin(), hexValue.end());
-		}
 
-		return hashCode;
+		return changeByteArrayToHexStringReprezentation(hash, _byteswap_ulong);
 	}
+
+	class MD5 : public GenericHash<MD5>
+	{
+	public:
+		std::string generateHash(std::string message);
+	};
 }
 
 #endif // !CRYPTOLIB_HASH_MD5_HPP
