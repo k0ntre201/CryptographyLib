@@ -35,8 +35,9 @@
 //}
 
 template <typename HashTest>
-std::string generateHash(std::string message, CryptoLib::Hash::GenericHash<HashTest> hashTest)
+std::string generateHash(std::string message)
 {
+	CryptoLib::Hash::GenericHash<HashTest> hashTest;
 	return hashTest.generateHash(message);
 }
 
@@ -53,9 +54,6 @@ int main()
 		std::cout << std::hex << c1 << "\n";
 		mask |= (mask >> 8);
 	}*/
-	CryptoLib::Hash::Whirpool w;
-	std::cout << generateHash("", w) << "\n";
-
-	CryptoLib::Hash::MD5 md5;
-	std::cout << generateHash("", md5) << "\n";
+	std::cout << generateHash<CryptoLib::Hash::Whirpool>("") << "\n";
+	std::cout << generateHash<CryptoLib::Hash::MD5>("") << "\n";
 }
